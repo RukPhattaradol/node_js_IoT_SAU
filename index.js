@@ -68,7 +68,7 @@ app.post("/api/register", async (req, res) => {
     fname: req.body.fname,
     username: req.body.username,
     email: req.body.email,
-    password: req.body.password,
+    password: req.body.password
   };
   await client.db("mydb").collection("users").insertOne({udata})
   users.push(udata);
