@@ -5,6 +5,7 @@ const port = 3000
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -15,6 +16,7 @@ app.listen(port, () => {
   
 });
 
+const users = [];
 
 const { MongoClient } = require("mongodb");
 const uri =
@@ -24,7 +26,7 @@ app.get("/api/id/:id", async (req, res) => {
   const id = parseInt(req.params.id);
   const client = new MongoClient(uri);
   await client.connect();
-  const user = await client.db("mydb").collection("users").findOne({ id: id });
+  const user = await client.db("mydb").collection("users").findOne({ "udata.id": id });
   await client.close();
   res.status(200).send({
     status: "ok",
@@ -39,7 +41,7 @@ app.get("/api/username/:username", async (req, res) => {
   const user = await client
     .db("mydb")
     .collection("users")
-    .findOne({ username: username });
+    .findOne({ "udata.username" : username });
   await client.close();
   res.status(200).send({
     status: "ok",
@@ -57,11 +59,35 @@ app.get("/api/users/getall", async (req, res) => {
 });
 
 app.post("/api/register", async (req, res) => {
+  const client = new MongoClient(uri);
+  await client.connect();
+  const totalUsers = await client.db("mydb").collection("users").countDocuments();
+  const id = totalUsers + 1;
+  const udata = {
+    id: id,
+    fname: req.body.fname,
+    username: req.body.username,
+    email: req.body.email,
+    password: req.body.password,
+  };
+  await client.db("mydb").collection("users").insertOne({udata})
+  users.push(udata);
+  console.log("User : ", udata);
+  res.status(200).send({
+    "status_code": 200,
+    "massege": "Registered",
+    "detail": udata
+  })
+})
+
+/*app.post("/api/register", async (req, res) => {
   const user = req.body;
   const client = new MongoClient(uri);
   await client.connect();
+  const totalUsers = await client.db("mydb").collection("users").countDocuments();
+  const id = totalUsers + 1;
   await client.db("mydb").collection("users").insertOne({
-    id: user.id,
+    id: id,
     fname: user.fname,
     username: user.username,
     email: user.email,
@@ -70,27 +96,28 @@ app.post("/api/register", async (req, res) => {
   await client.close();
   res.status(200).send({
     status: "ok",
-    message: "User with ID = " + user.id + " is created",
+    message: "User with ID = " + id + " is created",
     user: user,
   });
-});
+});*/
 
 app.put("/api/update", async (req, res) => {
   const user = req.body;
-  const id = user.id;
+  const id = user.udata.id;
+
   const client = new MongoClient(uri);
   await client.connect();
   const users = await client
     .db("mydb")
     .collection("users")
     .updateOne(
-      { id: id },
+      { "udata.id" : id },
       {
         $set: {
-          fname: user.fname,
-          username: user.username,
-          email: user.email,
-          password: user.password,
+          "udata.fname": user.udata.fname,
+          "udata.username": user.udata.username,
+          "udata.email": user.udata.email,
+          "udata.password": user.udata.password,
         },
       }
     );
@@ -106,7 +133,7 @@ app.delete('/api/delete', async(req, res) => {
   const id = parseInt(req.body.id);
   const client = new MongoClient(uri);
   await client.connect();
-  await client.db('mydb').collection('users').deleteOne({'id': id});
+  await client.db('mydb').collection('users').deleteOne({'udata.id': id});
   await client.close();
   res.status(200).send({
     "status": "ok",
