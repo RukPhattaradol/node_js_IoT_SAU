@@ -60,19 +60,14 @@ app.get("/api/users/getall", async (req, res) => {
 
 app.post("/api/register", async (req, res) => {
   const client = new MongoClient(uri);
-  await client.connect();
-  const totalUsers = await client.db("mydb").collection("users").countDocuments();
-  const id = totalUsers + 1;
   const udata = {
-    id: id,
     fname: req.body.fname,
     username: req.body.username,
     email: req.body.email,
-    password: req.body.password
+    password: req.body.password,
   };
   await client.db("mydb").collection("users").insertOne({udata})
   users.push(udata);
-  await client.close();
   console.log("User : ", udata);
   res.status(200).send({
     "status_code": 200,
