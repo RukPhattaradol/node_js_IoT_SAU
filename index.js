@@ -11,6 +11,12 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
+app.get('/api', (req, res) => {
+  const hostname = req.hostname; // หรือ req.host หรือ req.headers.host
+  res.send(`API host name is: ${hostname}`);
+  
+});
+
 app.listen(port, () => {
   console.log("server listening on port " + port);
   
