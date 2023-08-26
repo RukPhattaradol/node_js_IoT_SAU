@@ -1,0 +1,9 @@
+name : Render Spring POC hoox
+on : 
+  workflow_dispatch :
+
+jobs :
+  deploy-app:
+    runs-on: ubuntu-latest
+    steps:
+      - run: curl ${{secreats.RENDER_KEY_DEPLOY}}
