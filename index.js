@@ -1,32 +1,29 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const cors = require("cors");
 const app = express();
-const port = 3000
+const port = 3000;
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
-
-app.get('/api', (req, res) => {
-  const hostname = req.hostname; // หรือ req.host หรือ req.headers.host
-  res.send(`API host name is: ${hostname}`);
-  
-});
-
-app.listen(port, () => {
-  console.log("server listening on port " + port);
-  
-});
+mongoose
+  .connect("mongodb+srv://rukphattaradol:Xi3xerzx%402543@cluster0.nknks7r.mongodb.net/", {
+    useNewUrlParser: true, // Note the correction here, it's 'useNewUrlParser'
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log("Connected to MongoDB");
+  })
+  .catch((error) => {
+    console.error("Error connecting to MongoDB:", error);
+  });
 
 const users = [];
 
 const { MongoClient } = require("mongodb");
-const uri =
-  "mongodb+srv://rukphattaradol:Xi3xerzx%402543@cluster0.nknks7r.mongodb.net/";
+const uri ="mongodb+srv://rukphattaradol:Xi3xerzx%402543@cluster0.nknks7r.mongodb.net/";
 
 app.get("/api/id/:id", async (req, res) => {
   const id = parseInt(req.params.id);
@@ -147,3 +144,8 @@ app.delete('/api/delete', async(req, res) => {
     "message": "User with ID = "+id+" is deleted"
   });
 })
+
+app.listen(port, () => {
+  console.log("server listening on port " + port);
+  
+});
