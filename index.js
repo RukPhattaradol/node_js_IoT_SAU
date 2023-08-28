@@ -13,6 +13,16 @@ const users = [];
 const { MongoClient } = require("mongodb");
 const uri ="mongodb+srv://rukphattaradol:Xi3xerzx%402543@cluster0.nknks7r.mongodb.net/";
 
+
+app.get("/", (req, res) => {
+  try {
+    const publicIP = req.socket.remoteAddress;
+    res.status(200).json({ ip: publicIP });
+  } catch (error) {
+    res.status(500).json({ error: 'เกิดข้อผิดพลาดในการดึง IP สาธารณะ' });
+  }
+});
+
 app.get("/api/id/:id", async (req, res) => {
   const id = parseInt(req.params.id);
   const client = new MongoClient(uri);
